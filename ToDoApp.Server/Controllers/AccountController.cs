@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using ToDoApp.Server.DTOs;
 using ToDoApp.Server.Models;
 
 namespace ToDoApp.Server.Controllers
@@ -44,7 +45,7 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginModel model)
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

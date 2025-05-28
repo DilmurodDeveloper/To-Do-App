@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+using ToDoApp.Server.Services;
 using ToDoApp.Server.Models;
-using ToDoApp.Server.Data;
 using ToDoApp.Server.Hubs;
 
 namespace ToDoApp.Server.Controllers
@@ -14,73 +12,52 @@ namespace ToDoApp.Server.Controllers
     [Authorize]
     public class TodoController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly TodoService _todoService;
         private readonly IHubContext<TodoHub> _hub;
 
-        public TodoController(ApplicationDbContext context, IHubContext<TodoHub> hub)
+        public TodoController(TodoService todoService, IHubContext<TodoHub> hub)
         {
-            _context = context;
+            _todoService = todoService;
             _hub = hub;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var todos = await _context.TodoItems
-                .Where(t => t.UserId == userId)
-                .ToListAsync();
-
+            var todos = await _todoService.GetAllAsync();
             return Ok(todos);
         }
 
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] TodoItem item)
         {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            item.UserId = userId;
-
-            _context.TodoItems.Add(item);
-            await _context.SaveChangesAsync();
-
-            await _hub.Clients.All.SendAsync("ReceiveTodoUpdate");
-
-            return Ok(item);
+            var createdItem = await _todoService.CreateAsync(item);
+            await _hub.Clients.All.SendAsync("ReceiveTodoUpdate", createdItem);
+            return Ok(createdItem);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromBody] TodoItem updatedItem)
+        public async Task<IActionResult> Put(int id, [FromBody] TodoItem item)
         {
-            var todo = await _context.TodoItems.FindAsync(id);
-            if (todo == null) return NotFound();
+            if (id != item.Id)
+                return BadRequest();
 
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (todo.UserId != userId) return Forbid();
+            var updated = await _todoService.UpdateAsync(item);
+            if (!updated)
+                return NotFound();
 
-            todo.Title = updatedItem.Title;
-            todo.IsCompleted = updatedItem.IsCompleted;
-
-            await _context.SaveChangesAsync();
-
-            await _hub.Clients.All.SendAsync("ReceiveTodoUpdate");
-
-            return Ok(todo);
+            await _hub.Clients.All.SendAsync("ReceiveTodoUpdate", item);
+            return NoContent();
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var todo = await _context.TodoItems.FindAsync(id);
-            if (todo == null) return NotFound();
-
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (todo.UserId != userId) return Forbid();
-
-            _context.TodoItems.Remove(todo);
-            await _context.SaveChangesAsync();
+            var deleted = await _todoService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound();
 
             await _hub.Clients.All.SendAsync("ReceiveTodoUpdate");
-
             return NoContent();
         }
     }
