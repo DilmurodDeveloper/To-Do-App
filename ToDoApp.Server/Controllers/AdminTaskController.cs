@@ -2,64 +2,100 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ToDoApp.Server.Data;
+using ToDoApp.Server.DTOs.Tasks;  
 using ToDoApp.Server.Models;
 
-[Authorize(Roles = "Admin")]
-[ApiController]
-[Route("api/admin/tasks")]
-public class AdminTaskController : ControllerBase
+namespace ToDoApp.Server.Controllers
 {
-    private readonly ApplicationDbContext _context;
-
-    public AdminTaskController(ApplicationDbContext context)
+    [Authorize(Roles = "Admin")]
+    [ApiController]
+    [Route("api/admin/tasks")]
+    public class AdminTaskController : ControllerBase
     {
-        _context = context;
-    }
+        private readonly ApplicationDbContext _context;
 
-    [HttpGet]
-    public async Task<IActionResult> GetAllTasks()
-    {
-        var tasks = await _context.Tasks.ToListAsync();
-        return Ok(tasks);
-    }
+        public AdminTaskController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
-    [HttpPost]
-    public async Task<IActionResult> CreateTask([FromBody] TaskItem task)
-    {
-        _context.Tasks.Add(task);
-        await _context.SaveChangesAsync();
-        return Ok(task);
-    }
+        [HttpGet]
+        public async Task<IActionResult> GetAllTasks()
+        {
+            var tasks = await _context.Tasks.ToListAsync();
+            return Ok(tasks);
+        }
 
-    [HttpPut("{taskId}")]
-    public async Task<IActionResult> UpdateTask(Guid taskId, [FromBody] TaskItem updatedTask)
-    {
-        var task = await _context.Tasks.FindAsync(taskId);
-        if (task == null)
-            return NotFound();
+        [HttpPost]
+        public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto createTaskDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-        task.Title = updatedTask.Title;
-        task.Description = updatedTask.Description;
-        task.DueDate = updatedTask.DueDate;
-        task.Status = updatedTask.Status;
-        task.AssignedToUserId = updatedTask.AssignedToUserId;
-        task.GroupId = updatedTask.GroupId;
+            var task = new TaskItem
+            {
+                Id = Guid.NewGuid(),
+                Title = createTaskDto.Title,
+                Description = createTaskDto.Description,
+                DueDate = createTaskDto.DueDate,
+                Status = createTaskDto.Status,
+                GroupId = createTaskDto.GroupId,
+                AssignedToUserId = string.IsNullOrEmpty(createTaskDto.AssignedToUserId)
+                    ? Guid.Empty
+                    : Guid.Parse(createTaskDto.AssignedToUserId)
+            };
 
-        await _context.SaveChangesAsync();
+            _context.Tasks.Add(task);
+            await _context.SaveChangesAsync();
 
-        return Ok(task);
-    }
+            return CreatedAtAction(nameof(GetTaskById), new { taskId = task.Id }, task);
+        }
 
-    [HttpDelete("{taskId}")]
-    public async Task<IActionResult> DeleteTask(Guid taskId)
-    {
-        var task = await _context.Tasks.FindAsync(taskId);
-        if (task == null)
-            return NotFound();
+        [HttpGet("{taskId}")]
+        public async Task<IActionResult> GetTaskById(Guid taskId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null)
+                return NotFound();
 
-        _context.Tasks.Remove(task);
-        await _context.SaveChangesAsync();
+            return Ok(task);
+        }
 
-        return Ok("Task deleted");
+        [HttpPut("{taskId}")]
+        public async Task<IActionResult> UpdateTask(Guid taskId, [FromBody] UpdateTaskDto updateTaskDto)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null)
+                return NotFound();
+
+            task.Title = updateTaskDto.Title;
+            task.Description = updateTaskDto.Description;
+            task.DueDate = updateTaskDto.DueDate;
+            task.Status = updateTaskDto.Status;
+            task.GroupId = updateTaskDto.GroupId;
+            task.AssignedToUserId = string.IsNullOrEmpty(updateTaskDto.AssignedToUserId)
+                ? Guid.Empty
+                : Guid.Parse(updateTaskDto.AssignedToUserId);
+
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{taskId}")]
+        public async Task<IActionResult> DeleteTask(Guid taskId)
+        {
+            var task = await _context.Tasks.FindAsync(taskId);
+            if (task == null)
+                return NotFound();
+
+            _context.Tasks.Remove(task);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

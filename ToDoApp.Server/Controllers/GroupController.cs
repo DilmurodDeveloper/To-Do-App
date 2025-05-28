@@ -35,7 +35,7 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateGroup(CreateGroupDto model)
+        public async Task<IActionResult> CreateGroup([FromBody] CreateGroupDto model)
         {
             var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
@@ -44,7 +44,7 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateGroup(Guid id, UpdateGroupDto model)
+        public async Task<IActionResult> UpdateGroup(Guid id, [FromBody] UpdateGroupDto model)
         {
             var updated = await _groupService.UpdateGroupAsync(id, model);
             if (!updated) return NotFound();

@@ -9,7 +9,6 @@ namespace ToDoApp.Server.Models
         public string Token { get; set; } = null!;
         public DateTime Expires { get; set; }
         public bool IsRevoked { get; set; } = false;
-
         public Guid UserId { get; set; }
         public ApplicationUser User { get; set; } = null!;
     }

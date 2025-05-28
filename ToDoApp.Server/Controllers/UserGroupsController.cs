@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ToDoApp.Server.DTOs.UserGroups;
 using ToDoApp.Server.Services.Interfaces;
 
 namespace ToDoApp.Server.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     [Authorize]
     public class UserGroupController : ControllerBase
     {
@@ -31,23 +32,29 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddUserToGroup([FromQuery] Guid userId, [FromQuery] Guid groupId)
+        public async Task<IActionResult> AddUserToGroup([FromBody] UserGroupRequest request)
         {
-            var result = await _userGroupService.AddUserToGroupAsync(userId, groupId);
-            if (!result)
-                return BadRequest("User is already in the group or invalid IDs.");
+            if (request == null || request.UserId == Guid.Empty || request.GroupId == Guid.Empty)
+                return BadRequest(new { message = "Invalid user or group ID." });
 
-            return Ok("User added to group successfully.");
+            var result = await _userGroupService.AddUserToGroupAsync(request.UserId, request.GroupId);
+            if (!result)
+                return BadRequest(new { message = "User is already in the group or invalid IDs." });
+
+            return Ok(new { message = "User added to group successfully." });
         }
 
         [HttpDelete("remove")]
-        public async Task<IActionResult> RemoveUserFromGroup([FromQuery] Guid userId, [FromQuery] Guid groupId)
+        public async Task<IActionResult> RemoveUserFromGroup([FromBody] UserGroupRequest request)
         {
-            var result = await _userGroupService.RemoveUserFromGroupAsync(userId, groupId);
-            if (!result)
-                return NotFound("User not found in the group.");
+            if (request == null || request.UserId == Guid.Empty || request.GroupId == Guid.Empty)
+                return BadRequest(new { message = "Invalid user or group ID." });
 
-            return Ok("User removed from group successfully.");
+            var result = await _userGroupService.RemoveUserFromGroupAsync(request.UserId, request.GroupId);
+            if (!result)
+                return NotFound(new { message = "User not found in the group." });
+
+            return Ok(new { message = "User removed from group successfully." });
         }
     }
 }

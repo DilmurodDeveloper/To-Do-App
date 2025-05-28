@@ -30,7 +30,7 @@ namespace ToDoApp.Server.Controllers
         {
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
-                return NotFound("User not found");
+                return NotFound(new { message = "User not found" });
 
             return Ok(user);
         }
@@ -40,7 +40,7 @@ namespace ToDoApp.Server.Controllers
         {
             var deleted = await _userService.DeleteUserAsync(id);
             if (!deleted)
-                return NotFound("User not found or could not be deleted");
+                return NotFound(new { message = "User not found" });
 
             return NoContent();
         }
@@ -56,9 +56,9 @@ namespace ToDoApp.Server.Controllers
                 var updatedUser = await _userService.UpdateUserAsync(id, model);
                 return Ok(updatedUser);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ex.Message);
+                return BadRequest("An error occurred while updating the user.");
             }
         }
 

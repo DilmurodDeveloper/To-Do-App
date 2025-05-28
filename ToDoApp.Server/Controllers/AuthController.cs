@@ -110,6 +110,9 @@ namespace ToDoApp.Server.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenModel model)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             try
             {
                 var response = await _authService.RefreshTokenAsync(model.Token, model.RefreshToken);
