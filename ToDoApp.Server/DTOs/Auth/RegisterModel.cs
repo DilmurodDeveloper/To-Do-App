@@ -1,9 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ToDoApp.Server.DTOs
+namespace ToDoApp.Server.DTOs.Auth
 {
     public class RegisterModel
     {
+        [Required(ErrorMessage = "Username is required")]
+        [StringLength(50, ErrorMessage = "Username cannot be longer than 50 characters.")]
+        public string UserName { get; set; } = null!;
+
         [Required(ErrorMessage = "First name is required")]
         [StringLength(50, ErrorMessage = "First name cannot be longer than 50 characters.")]
         public string? FirstName { get; set; }
@@ -27,5 +31,7 @@ namespace ToDoApp.Server.DTOs
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string? PhoneNumber { get; set; }
 
+        [Required(ErrorMessage = "Role is required")]
+        public string Role { get; set; } = "User";
     }
 }
