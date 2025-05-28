@@ -5,11 +5,14 @@ namespace ToDoApp.Server.DTOs.Users
     public class UpdateUserDto
     {
         [Required]
-        public string? FirstName { get; set; }
+        [MinLength(2)]
+        public string FirstName { get; set; } = null!;
 
         [Required]
-        public string? LastName { get; set; }
+        [MinLength(2)]
+        public string LastName { get; set; } = null!;
 
+        [Phone]
         public string? PhoneNumber { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ToDoApp.Server.DTOs.Tasks;
 using ToDoApp.Server.Models;
 using ToDoApp.Server.Services.Interfaces;
 using TaskStatus = ToDoApp.Server.Models.TodoTaskStatus;
@@ -67,20 +68,20 @@ namespace ToDoApp.Server.Controllers
             return NoContent();
         }
 
-        [HttpPut("{id}/assign/{userId}")]
-        public async Task<IActionResult> AssignTaskToUser(Guid id, string userId)
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> ChangeTaskStatus(Guid id, [FromBody] UpdateTaskStatusDto dto)
         {
-            var result = await _taskService.AssignTaskToUserAsync(id, userId);
-            if (!result) return NotFound();
+            var result = await _taskService.ChangeTaskStatusAsync(id, dto.Status);
+            if (!result) return NotFound(new { message = "Task not found or status update failed." });
 
             return NoContent();
         }
 
-        [HttpPut("{id}/status")]
-        public async Task<IActionResult> ChangeTaskStatus(Guid id, [FromBody] TaskStatus status)
+        [HttpPut("{id}/assign/{userId}")]
+        public async Task<IActionResult> AssignTaskToUser(Guid id, Guid userId)
         {
-            var result = await _taskService.ChangeTaskStatusAsync(id, status);
-            if (!result) return NotFound();
+            var result = await _taskService.AssignTaskToUserAsync(id, userId.ToString());
+            if (!result) return NotFound(new { message = "Task or user not found." });
 
             return NoContent();
         }
