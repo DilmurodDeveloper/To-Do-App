@@ -28,4 +28,4 @@ jobs:
         run: dotnet build ./ToDoApp.Server/ToDoApp.Server.csproj --no-restore --configuration Release
 
       - name: Run Tests
-        run: dotnet test ./ToDoApp.Server.Tests/ToDoApp.Server.Tests.csproj --no-build --verbosity normal --configuration Release
+        run: dotnet test ./ToDoApp.Tests.Unit/ToDoApp.Tests.Unit.csproj --no-build --verbosity normal --configuration Release
