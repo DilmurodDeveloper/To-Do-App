@@ -32,11 +32,11 @@ namespace ToDoApp.Server.Services
 
         public async Task<bool> AddUserToGroupAsync(Guid userId, Guid groupId)
         {
-            var existing = await _context.UserGroups
+            var exists = await _context.UserGroups
                 .AnyAsync(ug => ug.UserId == userId && ug.GroupId == groupId);
 
-            if (existing)
-                return false; 
+            if (exists)
+                return false;
 
             var userGroup = new UserGroup
             {
@@ -60,6 +60,13 @@ namespace ToDoApp.Server.Services
             _context.UserGroups.Remove(userGroup);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task<bool> IsGroupOwnerAsync(Guid userId, Guid groupId)
+        {
+            return await _context.Groups
+                .AsNoTracking()
+                .AnyAsync(g => g.Id == groupId && g.CreatorId == userId);
         }
     }
 }

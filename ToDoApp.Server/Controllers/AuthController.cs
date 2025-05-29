@@ -17,14 +17,14 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterModel model, [FromQuery] string role = "User")
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
             try
             {
-                var user = await _authService.RegisterAsync(model, role);
+                var user = await _authService.RegisterAsync(model); 
                 return Ok(new { message = "User registered successfully", user });
             }
             catch (Exception ex)
@@ -129,6 +129,23 @@ namespace ToDoApp.Server.Controllers
         public IActionResult Logout()
         {
             return Ok(new { message = "Logged out successfully." });
+        }
+
+        [HttpPost("generate-confirm-token")]
+        public async Task<IActionResult> GenerateConfirmToken([FromBody] string email)
+        {
+            var token = await _authService.GenerateEmailConfirmationTokenAsync(email);
+            return Ok(new { token });
+        }
+
+        [HttpPost("generate-reset-token")]
+        public async Task<IActionResult> GenerateResetToken([FromBody] GenerateResetTokenModel model)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var token = await _authService.GeneratePasswordResetTokenAsync(model.Email);
+            return Ok(new { token });
         }
     }
 }

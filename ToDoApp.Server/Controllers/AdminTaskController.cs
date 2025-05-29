@@ -7,9 +7,9 @@ using ToDoApp.Server.Models;
 
 namespace ToDoApp.Server.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/admin/tasks")]
+    [Authorize(Roles = "Admin")]
     public class AdminTaskController : ControllerBase
     {
         private readonly ApplicationDbContext _context;

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Server.DTOs.UserGroups;
 using ToDoApp.Server.Services.Interfaces;
@@ -37,6 +38,11 @@ namespace ToDoApp.Server.Controllers
             if (request == null || request.UserId == Guid.Empty || request.GroupId == Guid.Empty)
                 return BadRequest(new { message = "Invalid user or group ID." });
 
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            if (!User.IsInRole("Admin") && !await _userGroupService.IsGroupOwnerAsync(userId, request.GroupId))
+                return Forbid("Only group owner or admin can add users.");
+
             var result = await _userGroupService.AddUserToGroupAsync(request.UserId, request.GroupId);
             if (!result)
                 return BadRequest(new { message = "User is already in the group or invalid IDs." });
@@ -49,6 +55,11 @@ namespace ToDoApp.Server.Controllers
         {
             if (request == null || request.UserId == Guid.Empty || request.GroupId == Guid.Empty)
                 return BadRequest(new { message = "Invalid user or group ID." });
+
+            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            if (!User.IsInRole("Admin") && !await _userGroupService.IsGroupOwnerAsync(userId, request.GroupId))
+                return Forbid("Only group owner or admin can remove users.");
 
             var result = await _userGroupService.RemoveUserFromGroupAsync(request.UserId, request.GroupId);
             if (!result)

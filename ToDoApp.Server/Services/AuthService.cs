@@ -1,14 +1,14 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System.Text;
+using ToDoApp.Server.Data;
+using ToDoApp.Server.Models;
 using System.Security.Claims;
+using ToDoApp.Server.DTOs.Auth;
+using ToDoApp.Server.DTOs.Users;
 using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using ToDoApp.Server.Data;
-using ToDoApp.Server.DTOs.Auth;
-using ToDoApp.Server.DTOs.Users;
-using ToDoApp.Server.Models;
+using System.IdentityModel.Tokens.Jwt;
 using ToDoApp.Server.Services.Interfaces;
 
 namespace ToDoApp.Server.Services
@@ -32,7 +32,7 @@ namespace ToDoApp.Server.Services
             _context = context;
         }
 
-        public async Task<UserDto> RegisterAsync(RegisterModel model, string role)
+        public async Task<UserDto> RegisterAsync(RegisterModel model)
         {
             var userExists = await _userManager.FindByEmailAsync(model.Email!);
             if (userExists != null)
@@ -40,7 +40,7 @@ namespace ToDoApp.Server.Services
 
             var user = new ApplicationUser
             {
-                UserName = model.Email,
+                UserName = model.UserName,
                 Email = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
@@ -51,6 +51,7 @@ namespace ToDoApp.Server.Services
             if (!result.Succeeded)
                 throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
 
+            var role = "User";
             if (!await _roleManager.RoleExistsAsync(role))
             {
                 var roleResult = await _roleManager.CreateAsync(new IdentityRole<Guid>(role));
@@ -67,15 +68,18 @@ namespace ToDoApp.Server.Services
                 UserName = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber
+                PhoneNumber = user.PhoneNumber,
+                Roles = new List<string> { role }
             };
         }
 
         public async Task<string> LoginAsync(LoginModel model)
         {
+            var userNameOrEmail = model.UserNameOrEmail.ToLower();
+
             var user = await _userManager.Users
                 .FirstOrDefaultAsync(u =>
-                    u.Email == model.UserNameOrEmail || u.UserName == model.UserNameOrEmail);
+                    u.Email!.ToLower() == userNameOrEmail || u.UserName!.ToLower() == userNameOrEmail);
 
             if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
                 throw new Exception("Invalid credentials.");
@@ -95,11 +99,11 @@ namespace ToDoApp.Server.Services
             }
 
             var authSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!));
+                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
                 expires: DateTime.Now.AddHours(3),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
@@ -156,15 +160,15 @@ namespace ToDoApp.Server.Services
             if (user == null)
                 throw new SecurityTokenException("User not found");
 
-            var storedToken = _context.RefreshTokens
-                .FirstOrDefault(rt => rt.Token == refreshToken && rt.UserId == userId);
+            var storedToken = await _context.RefreshTokens
+                .FirstOrDefaultAsync(rt => rt.Token == refreshToken && rt.UserId == userId);
 
             if (storedToken == null || storedToken.IsRevoked || storedToken.Expires < DateTime.UtcNow)
                 throw new SecurityTokenException("Invalid refresh token");
 
             storedToken.IsRevoked = true;
 
-            var newAccessToken = GenerateJwtToken(user);
+            var newAccessToken = await GenerateJwtTokenAsync(user);
             var newRefreshToken = CreateRefreshToken(user.Id);
 
             _context.RefreshTokens.Add(newRefreshToken);
@@ -180,7 +184,7 @@ namespace ToDoApp.Server.Services
             };
         }
 
-        private string GenerateJwtToken(ApplicationUser user)
+        private async Task<string> GenerateJwtTokenAsync(ApplicationUser user)
         {
             var authClaims = new List<Claim>
             {
@@ -189,17 +193,18 @@ namespace ToDoApp.Server.Services
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
             };
 
-            var userRoles = _userManager.GetRolesAsync(user).Result;
+            var userRoles = await _userManager.GetRolesAsync(user);
             foreach (var role in userRoles)
             {
                 authClaims.Add(new Claim(ClaimTypes.Role, role));
             }
 
-            var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!));
+            var authSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)); 
 
             var token = new JwtSecurityToken(
-                issuer: _configuration["JWT:ValidIssuer"],
-                audience: _configuration["JWT:ValidAudience"],
+                issuer: _configuration["Jwt:Issuer"],      
+                audience: _configuration["Jwt:Audience"],  
                 expires: DateTime.Now.AddHours(3),
                 claims: authClaims,
                 signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
@@ -226,15 +231,19 @@ namespace ToDoApp.Server.Services
                 ValidateIssuer = false,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes(_configuration["JWT:Secret"]!)),
+                    Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!)),
                 ValidateLifetime = false 
             };
 
             var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken securityToken);
+
+            var principal = tokenHandler.ValidateToken(
+                token, tokenValidationParameters, out SecurityToken securityToken);
 
             if (securityToken is not JwtSecurityToken jwtSecurityToken ||
-                !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                !jwtSecurityToken.Header.Alg.Equals(
+                    SecurityAlgorithms.HmacSha256, 
+                    StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid token");
 
             return principal;

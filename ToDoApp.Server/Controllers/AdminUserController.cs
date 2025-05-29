@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -9,15 +8,17 @@ using ToDoApp.Server.Models;
 
 namespace ToDoApp.Server.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/admin/users")]
+    [Authorize(Roles = "Admin")]
     public class AdminUserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole<Guid>> _roleManager;
 
-        public AdminUserController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole<Guid>> roleManager)
+        public AdminUserController(
+            UserManager<ApplicationUser> userManager, 
+            RoleManager<IdentityRole<Guid>> roleManager)
         {
             _userManager = userManager;
             _roleManager = roleManager;
@@ -48,7 +49,9 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpPost("{userId}/roles")]
-        public async Task<IActionResult> AssignRoleToUser(Guid userId, [FromBody] RoleAssignDto roleAssignDto)
+        public async Task<IActionResult> AssignRoleToUser(
+            Guid userId, 
+            [FromBody] RoleAssignDto roleAssignDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

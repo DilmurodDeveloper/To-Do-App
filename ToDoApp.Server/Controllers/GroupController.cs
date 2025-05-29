@@ -6,8 +6,8 @@ using ToDoApp.Server.Services.Interfaces;
 
 namespace ToDoApp.Server.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     [Authorize]
     public class GroupController : ControllerBase
     {
@@ -17,6 +17,8 @@ namespace ToDoApp.Server.Controllers
         {
             _groupService = groupService;
         }
+
+        private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         [HttpGet]
         public async Task<IActionResult> GetAllGroups()
@@ -37,7 +39,7 @@ namespace ToDoApp.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateGroup([FromBody] CreateGroupDto model)
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userId = GetUserId();
 
             var createdGroup = await _groupService.CreateGroupAsync(model, userId);
             return CreatedAtAction(nameof(GetGroupById), new { id = createdGroup.Id }, createdGroup);
@@ -46,8 +48,18 @@ namespace ToDoApp.Server.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateGroup(Guid id, [FromBody] UpdateGroupDto model)
         {
+            var userId = GetUserId();
+
+            var group = await _groupService.GetGroupByIdAsync(id);
+            if (group == null)
+                return NotFound();
+
+            if (group.CreatorId != userId)
+                return Forbid("Only the group creator can update the group.");
+
             var updated = await _groupService.UpdateGroupAsync(id, model);
-            if (!updated) return NotFound();
+            if (!updated)
+                return NotFound();
 
             return NoContent();
         }
@@ -55,8 +67,18 @@ namespace ToDoApp.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteGroup(Guid id)
         {
+            var userId = GetUserId();
+
+            var group = await _groupService.GetGroupByIdAsync(id);
+            if (group == null)
+                return NotFound();
+
+            if (group.CreatorId != userId)
+                return Forbid("Only the group creator can delete the group.");
+
             var deleted = await _groupService.DeleteGroupAsync(id);
-            if (!deleted) return NotFound();
+            if (!deleted)
+                return NotFound();
 
             return NoContent();
         }
@@ -64,7 +86,7 @@ namespace ToDoApp.Server.Controllers
         [HttpGet("created-by-me")]
         public async Task<IActionResult> GetGroupsCreatedByUser()
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userId = GetUserId();
             var groups = await _groupService.GetGroupsCreatedByUserAsync(userId);
             return Ok(groups);
         }
@@ -72,7 +94,7 @@ namespace ToDoApp.Server.Controllers
         [HttpGet("member-of")]
         public async Task<IActionResult> GetGroupsUserIsMemberOf()
         {
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var userId = GetUserId();
             var groups = await _groupService.GetGroupsUserIsMemberOfAsync(userId);
             return Ok(groups);
         }

@@ -8,7 +8,7 @@ namespace ToDoApp.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]  
+    [Authorize]  
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -19,6 +19,7 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -26,6 +27,7 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpGet("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(Guid id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -36,6 +38,7 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(Guid id)
         {
             var deleted = await _userService.DeleteUserAsync(id);
@@ -46,6 +49,7 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpPut("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDto model)
         {
             if (!ModelState.IsValid)
@@ -63,23 +67,17 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpGet("profile")]
+        [Authorize]
         public async Task<ActionResult<UserProfileDto>> GetUserProfile()
         {
-            try
-            {
-                var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                if (userIdClaim == null)
-                    return Unauthorized();
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
 
-                var userId = Guid.Parse(userIdClaim.Value);
-                var profile = await _userService.GetUserProfileAsync(userId);
+            var userId = Guid.Parse(userIdClaim.Value);
+            var profile = await _userService.GetUserProfileAsync(userId);
 
-                return Ok(profile);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, ex.Message);
-            }
+            return Ok(profile);
         }
     }
 }

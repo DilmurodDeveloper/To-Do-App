@@ -34,7 +34,8 @@ namespace ToDoApp.Server.Services
             return new GroupDto
             {
                 Id = group.Id,
-                Name = group.Name
+                Name = group.Name,
+                CreatorId = group.CreatorId
             };
         }
 

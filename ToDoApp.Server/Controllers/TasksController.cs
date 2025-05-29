@@ -1,22 +1,24 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ToDoApp.Server.DTOs.Tasks;
 using ToDoApp.Server.Models;
 using ToDoApp.Server.Services.Interfaces;
-using TaskStatus = ToDoApp.Server.Models.TodoTaskStatus;
 
 namespace ToDoApp.Server.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    [Authorize]  
+    [Route("api/[controller]")]
+    [Authorize]
     public class TaskController : ControllerBase
     {
         private readonly ITaskService _taskService;
+        private readonly IGroupService _groupService;
 
-        public TaskController(ITaskService taskService)
+        public TaskController(ITaskService taskService, IGroupService groupService)
         {
             _taskService = taskService;
+            _groupService = groupService;
         }
 
         [HttpGet("group/{groupId}")]
@@ -40,6 +42,11 @@ namespace ToDoApp.Server.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
+            var userId = GetUserId();
+
+            if (!await IsUserGroupOwner(userId, task.GroupId))
+                return Forbid("Only the group owner can create tasks in this group.");
+
             var createdTask = await _taskService.CreateTaskAsync(task);
             return CreatedAtAction(nameof(GetTaskById), new { id = createdTask.Id }, createdTask);
         }
@@ -53,6 +60,15 @@ namespace ToDoApp.Server.Controllers
             if (id != task.Id)
                 return BadRequest("Task ID mismatch");
 
+            var userId = GetUserId();
+            var existingTask = await _taskService.GetTaskByIdAsync(id);
+
+            if (existingTask == null)
+                return NotFound();
+
+            if (!await IsUserGroupOwner(userId, existingTask.GroupId))
+                return Forbid("Only the group owner can edit tasks in this group.");
+
             var result = await _taskService.UpdateTaskAsync(task);
             if (!result) return NotFound();
 
@@ -62,6 +78,15 @@ namespace ToDoApp.Server.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(Guid id)
         {
+            var userId = GetUserId();
+            var existingTask = await _taskService.GetTaskByIdAsync(id);
+
+            if (existingTask == null)
+                return NotFound();
+
+            if (!await IsUserGroupOwner(userId, existingTask.GroupId))
+                return Forbid("Only the group owner can delete tasks in this group.");
+
             var result = await _taskService.DeleteTaskAsync(id);
             if (!result) return NotFound();
 
@@ -71,6 +96,15 @@ namespace ToDoApp.Server.Controllers
         [HttpPut("{id}/status")]
         public async Task<IActionResult> ChangeTaskStatus(Guid id, [FromBody] UpdateTaskStatusDto dto)
         {
+
+            var existingTask = await _taskService.GetTaskByIdAsync(id);
+            if (existingTask == null)
+                return NotFound();
+
+            var userId = GetUserId();
+            if (!await IsUserGroupOwner(userId, existingTask.GroupId))
+                return Forbid("Only the group owner can change task status.");
+
             var result = await _taskService.ChangeTaskStatusAsync(id, dto.Status);
             if (!result) return NotFound(new { message = "Task not found or status update failed." });
 
@@ -80,10 +114,29 @@ namespace ToDoApp.Server.Controllers
         [HttpPut("{id}/assign/{userId}")]
         public async Task<IActionResult> AssignTaskToUser(Guid id, Guid userId)
         {
+            var existingTask = await _taskService.GetTaskByIdAsync(id);
+            if (existingTask == null)
+                return NotFound();
+
+            var currentUserId = GetUserId();
+            if (!await IsUserGroupOwner(currentUserId, existingTask.GroupId))
+                return Forbid("Only the group owner can assign tasks.");
+
             var result = await _taskService.AssignTaskToUserAsync(id, userId.ToString());
             if (!result) return NotFound(new { message = "Task or user not found." });
 
             return NoContent();
+        }
+
+        private Guid GetUserId() => Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+        private async Task<bool> IsUserGroupOwner(Guid userId, Guid groupId)
+        {
+            var group = await _groupService.GetGroupByIdAsync(groupId);
+            if (group == null)
+                return false;
+
+            return group.CreatorId == userId;
         }
     }
 }

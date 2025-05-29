@@ -7,9 +7,9 @@ using ToDoApp.Server.Models;
 
 namespace ToDoApp.Server.Controllers
 {
-    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/admin/groups")]
+    [Authorize(Roles = "Admin")]
     public class AdminGroupController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
