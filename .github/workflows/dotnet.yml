@@ -1,0 +1,31 @@
+name: ToDoApp Build Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore NuGet Packages
+        run: dotnet restore ./ToDoApp.Server/ToDoApp.Server.csproj
+
+      - name: Build Project
+        run: dotnet build ./ToDoApp.Server/ToDoApp.Server.csproj --no-restore --configuration Release
+
+      - name: Run Tests
+        run: dotnet test ./ToDoApp.Server.Tests/ToDoApp.Server.Tests.csproj --no-build --verbosity normal --configuration Release

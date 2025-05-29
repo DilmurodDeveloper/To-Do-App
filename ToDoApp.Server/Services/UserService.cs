@@ -28,7 +28,7 @@ namespace ToDoApp.Server.Services
             {
                 Id = user.Id,
                 Email = user.Email!,
-                UserName = user.UserName,
+                UserName = user.UserName!,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber
@@ -44,7 +44,7 @@ namespace ToDoApp.Server.Services
             {
                 Id = user.Id,
                 Email = user.Email!,
-                UserName = user.UserName,
+                UserName = user.UserName!,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber
@@ -77,7 +77,7 @@ namespace ToDoApp.Server.Services
             {
                 Id = user.Id,
                 Email = user.Email!,
-                UserName = user.UserName,
+                UserName = user.UserName!,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber
@@ -127,7 +127,7 @@ namespace ToDoApp.Server.Services
                 {
                     Id = user.Id,
                     Email = user.Email!,
-                    UserName = user.UserName,
+                    UserName = user.UserName!,
                     FirstName = user.FirstName,
                     LastName = user.LastName,
                     PhoneNumber = user.PhoneNumber
