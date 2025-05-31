@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoApp.Infrastructure.Buil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ToDoApp.Tests.Unit", "ToDoApp.Tests.Unit\ToDoApp.Tests.Unit.csproj", "{056E31C2-6D23-48A5-A40D-EBEF6B1CC9AF}"
 EndProject
-Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "ToDoApp.Client", "ToDoApp.Client\ToDoApp.Client.esproj", "{A30D5B0B-BE2C-337D-F08E-781E7B079FB0}"
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "todoapp.client", "ToDoApp.Client\todoapp.client.esproj", "{A30D5B0B-BE2C-337D-F08E-781E7B079FB0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
