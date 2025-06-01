@@ -1,132 +1,147 @@
-import { useState } from 'react';
+import React from "react";
+import { useForm } from "react-hook-form";
 
-const RegisterForm = ({ onSubmit }) => {
-  const [userName, setUserName] = useState('');
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
+const RegisterForm = ({ onSubmit, onLoginClick }) => {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm();
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if(password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-    onSubmit({ userName, firstName, lastName, email, password, confirmPassword, phoneNumber });
-  };
+    const password = watch("Password");
 
-  return (
-    <div className="max-w-md mx-auto mt-20 p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center">Register</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block mb-1 font-semibold" htmlFor="userName">Username</label>
-          <input
-            type="text"
-            id="userName"
-            required
-            maxLength={50}
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Username"
-          />
-        </div>
+    return (
+        <>
+            <form onSubmit={handleSubmit(onSubmit)} className="mb-3">
+                <div className="d-flex gap-3 mb-3">
+                    <div className="flex-grow-1">
+                        <label htmlFor="UserName" className="form-label">Username</label>
+                        <input
+                            id="UserName"
+                            {...register("UserName", {
+                                required: "Username is required",
+                                maxLength: { value: 50, message: "Username cannot be longer than 50 characters." },
+                            })}
+                            className={`form-control ${errors.UserName ? "is-invalid" : ""}`}
+                            placeholder="Enter username"
+                        />
+                        {errors.UserName && <div className="invalid-feedback">{errors.UserName.message}</div>}
+                    </div>
 
-        <div>
-          <label className="block mb-1 font-semibold" htmlFor="firstName">First Name</label>
-          <input
-            type="text"
-            id="firstName"
-            required
-            maxLength={50}
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="First Name"
-          />
-        </div>
+                    <div className="flex-grow-1">
+                        <label htmlFor="FirstName" className="form-label">First Name</label>
+                        <input
+                            id="FirstName"
+                            {...register("FirstName", {
+                                required: "First name is required",
+                                maxLength: { value: 50, message: "First name cannot be longer than 50 characters." },
+                            })}
+                            className={`form-control ${errors.FirstName ? "is-invalid" : ""}`}
+                            placeholder="Enter first name"
+                        />
+                        {errors.FirstName && <div className="invalid-feedback">{errors.FirstName.message}</div>}
+                    </div>
 
-        <div>
-          <label className="block mb-1 font-semibold" htmlFor="lastName">Last Name</label>
-          <input
-            type="text"
-            id="lastName"
-            required
-            maxLength={50}
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Last Name"
-          />
-        </div>
+                    <div className="flex-grow-1">
+                        <label htmlFor="LastName" className="form-label">Last Name</label>
+                        <input
+                            id="LastName"
+                            {...register("LastName", {
+                                required: "Last name is required",
+                                maxLength: { value: 50, message: "Last name cannot be longer than 50 characters." },
+                            })}
+                            className={`form-control ${errors.LastName ? "is-invalid" : ""}`}
+                            placeholder="Enter last name"
+                        />
+                        {errors.LastName && <div className="invalid-feedback">{errors.LastName.message}</div>}
+                    </div>
+                </div>
 
-        <div>
-          <label className="block mb-1 font-semibold" htmlFor="email">Email</label>
-          <input
-            type="email"
-            id="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Email"
-          />
-        </div>
+                <div className="d-flex gap-3 mb-3">
+                    <div className="flex-grow-1">
+                        <label htmlFor="PhoneNumber" className="form-label">Phone Number (optional)</label>
+                        <input
+                            id="PhoneNumber"
+                            type="tel"
+                            {...register("PhoneNumber", {
+                                pattern: {
+                                    value: /^\+?[0-9]{10,15}$/,
+                                    message: "Invalid phone number format",
+                                },
+                            })}
+                            className={`form-control ${errors.PhoneNumber ? "is-invalid" : ""}`}
+                            placeholder="+998901234567"
+                        />
+                        {errors.PhoneNumber && <div className="invalid-feedback">{errors.PhoneNumber.message}</div>}
+                    </div>
 
-        <div>
-          <label className="block mb-1 font-semibold" htmlFor="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Password"
-          />
-        </div>
+                    <div className="flex-grow-1">
+                        <label htmlFor="Email" className="form-label">Email</label>
+                        <input
+                            id="Email"
+                            type="email"
+                            {...register("Email", {
+                                required: "Email is required",
+                                pattern: { value: /^\S+@\S+$/, message: "Invalid email address format" },
+                            })}
+                            className={`form-control ${errors.Email ? "is-invalid" : ""}`}
+                            placeholder="Enter email"
+                        />
+                        {errors.Email && <div className="invalid-feedback">{errors.Email.message}</div>}
+                    </div>
+                </div>
 
-        <div>
-          <label className="block mb-1 font-semibold" htmlFor="confirmPassword">Confirm Password</label>
-          <input
-            type="password"
-            id="confirmPassword"
-            required
-            minLength={6}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Confirm Password"
-          />
-        </div>
+                <div className="d-flex gap-3 mb-3">
+                    <div className="flex-grow-1">
+                        <label htmlFor="Password" className="form-label">Password</label>
+                        <input
+                            id="Password"
+                            type="password"
+                            {...register("Password", {
+                                required: "Password is required",
+                                minLength: { value: 6, message: "Password must be at least 6 characters." },
+                            })}
+                            className={`form-control ${errors.Password ? "is-invalid" : ""}`}
+                            placeholder="Enter password"
+                        />
+                        {errors.Password && <div className="invalid-feedback">{errors.Password.message}</div>}
+                    </div>
 
-        <div>
-          <label className="block mb-1 font-semibold" htmlFor="phoneNumber">Phone Number (optional)</label>
-          <input
-            type="tel"
-            id="phoneNumber"
-            pattern="^\+?[0-9\s\-]{7,15}$"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
-            className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            placeholder="Phone Number"
-          />
-        </div>
+                    <div className="flex-grow-1">
+                        <label htmlFor="ConfirmPassword" className="form-label">Confirm Password</label>
+                        <input
+                            id="ConfirmPassword"
+                            type="password"
+                            {...register("ConfirmPassword", {
+                                required: "Confirm Password is required",
+                                validate: (value) => value === password || "Passwords do not match.",
+                            })}
+                            className={`form-control ${errors.ConfirmPassword ? "is-invalid" : ""}`}
+                            placeholder="Re-enter password"
+                        />
+                        {errors.ConfirmPassword && <div className="invalid-feedback">{errors.ConfirmPassword.message}</div>}
+                    </div>
+                </div>
 
-        <button
-          type="submit"
-          className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700 transition"
-        >
-          Register
-        </button>
-      </form>
-    </div>
-  );
+                <button type="submit" className="btn btn-primary w-100">
+                    Register
+                </button>
+            </form>
+
+            <div className="text-center mt-3">
+                <span>Do you have an account? </span>
+                <button
+                    type="button"
+                    onClick={onLoginClick}
+                    className="btn btn-link text-primary p-0"
+                    style={{ fontWeight: "bold", textDecoration: "underline", cursor: "pointer" }}
+                >
+                    Login
+                </button>
+            </div>
+        </>
+    );
 };
 
 export default RegisterForm;
