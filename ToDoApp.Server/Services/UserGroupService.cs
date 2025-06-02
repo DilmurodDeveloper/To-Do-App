@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ToDoApp.Server.Data;
+using ToDoApp.Server.DTOs.Groups;
+using ToDoApp.Server.DTOs.Users;
 using ToDoApp.Server.Models;
 using ToDoApp.Server.Services.Interfaces;
 
@@ -14,20 +16,44 @@ namespace ToDoApp.Server.Services
             _context = context;
         }
 
-        public async Task<List<ApplicationUser>> GetUsersInGroupAsync(Guid groupId)
+        public async Task<List<UserDto>> GetUsersInGroupAsync(Guid groupId)
         {
-            return await _context.UserGroups
+            var users = await _context.UserGroups
+                .Include(ug => ug.User)
                 .Where(ug => ug.GroupId == groupId)
-                .Select(ug => ug.User!)
+                .Select(ug => ug.User)
                 .ToListAsync();
+
+            var userDtos = users.Select(u => new UserDto
+            {
+                Id = u.Id,
+                Email = u.Email,
+                UserName = u.UserName,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                PhoneNumber = u.PhoneNumber,
+                Roles = new List<string>() 
+            }).ToList();
+
+            return userDtos;
         }
 
-        public async Task<List<Group>> GetGroupsForUserAsync(Guid userId)
+        public async Task<List<GroupDto>> GetGroupsForUserAsync(Guid userId)
         {
-            return await _context.UserGroups
+            var groups = await _context.UserGroups
+                .Include(ug => ug.Group)
                 .Where(ug => ug.UserId == userId)
-                .Select(ug => ug.Group!)
+                .Select(ug => ug.Group)
                 .ToListAsync();
+
+            var groupDtos = groups.Select(g => new GroupDto
+            {
+                Id = g.Id,
+                Name = g.Name,
+                CreatorId = g.CreatorId
+            }).ToList();
+
+            return groupDtos;
         }
 
         public async Task<bool> AddUserToGroupAsync(Guid userId, Guid groupId)

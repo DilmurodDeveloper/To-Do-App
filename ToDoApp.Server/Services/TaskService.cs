@@ -92,5 +92,12 @@ namespace ToDoApp.Server.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<List<TaskItem>> GetTasksByUserAsync(Guid userId)
+        {
+            return await _context.Tasks
+                .Where(t => t.AssignedToUserId == userId)
+                .ToListAsync();
+        }
     }
 }

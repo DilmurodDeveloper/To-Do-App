@@ -36,6 +36,13 @@ namespace ToDoApp.Server.Controllers
             return Ok(task);
         }
 
+        [HttpGet("user/{userId}")]
+        public async Task<IActionResult> GetTasksByUser(Guid userId)
+        {
+            var tasks = await _taskService.GetTasksByUserAsync(userId);
+            return Ok(tasks);
+        }
+
         [HttpPost]
         public async Task<IActionResult> CreateTask([FromBody] TaskItem task)
         {

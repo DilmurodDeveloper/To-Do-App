@@ -12,5 +12,6 @@ namespace ToDoApp.Server.Services.Interfaces
         Task<bool> DeleteTaskAsync(Guid taskId);
         Task<bool> AssignTaskToUserAsync(Guid taskId, string userId);
         Task<bool> ChangeTaskStatusAsync(Guid taskId, TaskStatus status);
+        Task<List<TaskItem>> GetTasksByUserAsync(Guid userId);
     }
 }
