@@ -22,14 +22,22 @@ namespace ToDoApp.Server.Controllers
         public async Task<IActionResult> GetUsersInGroup(Guid groupId)
         {
             var users = await _userGroupService.GetUsersInGroupAsync(groupId);
-            return Ok(users);
+            return Ok(users); 
         }
 
         [HttpGet("user/{userId}/groups")]
         public async Task<IActionResult> GetGroupsForUser(Guid userId)
         {
-            var groups = await _userGroupService.GetGroupsForUserAsync(userId);
-            return Ok(groups);
+            try
+            {
+                var groups = await _userGroupService.GetGroupsForUserAsync(userId);
+                return Ok(groups); 
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error in GetGroupsForUser: {ex.Message}\n{ex.StackTrace}");
+                return StatusCode(500, "Ichki server xatosi yuz berdi.");
+            }
         }
 
         [HttpPost("add")]

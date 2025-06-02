@@ -13,7 +13,6 @@ const LoginForm = ({ onSubmit, onRegisterClick }) => {
 
     const handleLoginSubmit = (data) => {
         onSubmit(data);
-        navigate("/dashboard");
     };
 
     return (
@@ -21,6 +20,7 @@ const LoginForm = ({ onSubmit, onRegisterClick }) => {
             <form onSubmit={handleSubmit(handleLoginSubmit)} className="mb-3">
                 <div className="mb-3">
                     <label htmlFor="userNameOrEmail" className="form-label">
+                        <i className="fas fa-user me-2"></i>
                         Email or Username
                     </label>
                     <input
@@ -36,6 +36,7 @@ const LoginForm = ({ onSubmit, onRegisterClick }) => {
 
                 <div className="mb-3">
                     <label htmlFor="password" className="form-label">
+                        <i className="fas fa-lock me-2"></i>
                         Password
                     </label>
                     <input
@@ -54,6 +55,7 @@ const LoginForm = ({ onSubmit, onRegisterClick }) => {
                 </div>
 
                 <button type="submit" className="btn btn-primary w-100">
+                    <i className="fas fa-sign-in-alt me-2"></i>
                     Login
                 </button>
             </form>
@@ -63,7 +65,7 @@ const LoginForm = ({ onSubmit, onRegisterClick }) => {
                 <span
                     type="button"
                     onClick={onRegisterClick}
-                    className="btn btn-link text-primary p-0"
+                    className="btn btn-link text-primary p-1"
                     style={{ fontWeight: "bold" }}
                 >
                     Register
