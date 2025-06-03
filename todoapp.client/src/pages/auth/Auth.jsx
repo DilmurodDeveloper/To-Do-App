@@ -26,6 +26,16 @@ const Auth = () => {
         localStorage.setItem("isLogin", isLogin.toString());
     }, [isLogin]);
 
+    useEffect(() => {
+        if (user) {
+            if (user.role === "Admin") {
+                navigate("/admin/users");
+            } else {
+                navigate("/user/dashboard");
+            }
+        }
+    }, [user, navigate]);
+
     const handleLogin = async (form) => {
         const res = await login(form);
         if (res.success) {

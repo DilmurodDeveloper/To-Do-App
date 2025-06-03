@@ -9,16 +9,7 @@
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist</BuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="src\components\groups\" />
     <Folder Include="src\components\userGroups\" />
-    <Folder Include="src\components\users\" />
-    <Folder Include="src\components\tasks\" />
-    <Folder Include="src\pages\admin\groups\" />
     <Folder Include="src\pages\admin\userGroups\" />
-    <Folder Include="src\pages\admin\tasks\" />
-    <Folder Include="src\pages\admin\users\" />
-    <Folder Include="src\pages\user\groups\" />
-    <Folder Include="src\pages\user\tasks\" />
-    <Folder Include="src\utils\" />
   </ItemGroup>
 </Project>
