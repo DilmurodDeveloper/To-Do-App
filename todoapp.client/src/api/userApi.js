@@ -1,28 +1,51 @@
-import axios from '../utils/axiosInstance';
-
-const API_URL = '/api/User';
+import api from "./index";
 
 export const getAllUsers = async () => {
-    const response = await axios.get(API_URL);
-    return response.data;
+    try {
+        const response = await api.get("/user");
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Failed to fetch users:", error);
+        return { success: false, error: error.response?.data?.message || "Could not fetch users" };
+    }
 };
 
 export const getUserById = async (id) => {
-    const response = await axios.get(`${API_URL}/${id}`);
-    return response.data;
+    try {
+        const response = await api.get(`/user/${id}`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error(`Failed to fetch user ${id}:`, error);
+        return { success: false, error: error.response?.data?.message || "Could not fetch user" };
+    }
 };
 
 export const deleteUser = async (id) => {
-    const response = await axios.delete(`${API_URL}/${id}`);
-    return response.status === 204;
+    try {
+        await api.delete(`/user/${id}`);
+        return { success: true };
+    } catch (error) {
+        console.error(`Failed to delete user ${id}:`, error);
+        return { success: false, error: error.response?.data?.message || "Could not delete user" };
+    }
 };
 
-export const updateUser = async (id, data) => {
-    const response = await axios.put(`${API_URL}/${id}`, data);
-    return response.data;
+export const updateUser = async (id, userData) => {
+    try {
+        const response = await api.put(`/user/${id}`, userData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error(`Failed to update user ${id}:`, error);
+        return { success: false, error: error.response?.data?.message || "Could not update user" };
+    }
 };
 
-export const getProfile = async () => {
-    const response = await axios.get(`${API_URL}/profile`);
-    return response.data;
+export const getUserProfile = async () => {
+    try {
+        const response = await api.get("/user/profile");
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Failed to fetch user profile:", error);
+        return { success: false, error: error.response?.data?.message || "Could not fetch profile" };
+    }
 };
