@@ -10,12 +10,13 @@ import Profile from "./pages/user/Profile";
 import UserGroupsList from "./pages/user/groups/GroupsList";
 import GroupDetails from "./pages/user/groups/GroupDetails";
 import UserTasksList from "./pages/user/tasks/TasksList";
-import AdminUsersList from "./pages/admin/users/UsersList";
-import AdminUserDetails from "./pages/admin/users/UserDetails";
-import AdminGroupsList from "./pages/admin/groups/GroupsList";
+import AdminDashboard from './pages/admin/AdminDashboard';
+import UsersList from "./pages/admin/users/UsersList";
+import UserDetails from "./pages/admin/users/UserDetails";
+import GroupsList from "./pages/admin/groups/GroupsList";
 import AdminGroupDetails from "./pages/admin/groups/GroupDetails";
-import AdminTasksList from "./pages/admin/tasks/TasksList";
-import AdminTaskDetails from "./pages/admin/tasks/TaskDetails";
+import TasksList from "./pages/admin/tasks/TasksList";
+import TaskDetails from "./pages/admin/tasks/TaskDetails";
 import AdminUserGroupsList from "./pages/admin/userGroups/UserGroupsList";
 import RequireAuth from "./contexts/RequireAuth";
 import Navbar from "./Navbar";
@@ -35,12 +36,13 @@ const App = () => {
                     <Route path="/user/groups" element={<RequireAuth><UserGroupsList /></RequireAuth>} />
                     <Route path="/user/groups/:groupId" element={<RequireAuth><GroupDetails /></RequireAuth>} />
                     <Route path="/user/tasks" element={<RequireAuth><UserTasksList /></RequireAuth>} />
-                    <Route path="/admin/users" element={<RequireAuth><AdminUsersList /></RequireAuth>} />
-                    <Route path="/admin/users/:userId" element={<RequireAuth><AdminUserDetails /></RequireAuth>} />
-                    <Route path="/admin/groups" element={<RequireAuth><AdminGroupsList /></RequireAuth>} />
+                    <Route path="/admin/dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin/users" element={<RequireAuth><UsersList /></RequireAuth>} />
+                    <Route path="/admin/users/:userId" element={<RequireAuth><UserDetails /></RequireAuth>} />
+                    <Route path="/admin/groups" element={<RequireAuth><GroupsList /></RequireAuth>} />
                     <Route path="/admin/groups/:groupId" element={<RequireAuth><AdminGroupDetails /></RequireAuth>} />
-                    <Route path="/admin/tasks" element={<RequireAuth><AdminTasksList /></RequireAuth>} />
-                    <Route path="/admin/tasks/:taskId" element={<RequireAuth><AdminTaskDetails /></RequireAuth>} />
+                    <Route path="/admin/tasks" element={<RequireAuth><TasksList /></RequireAuth>} />
+                    <Route path="/admin/tasks/:taskId" element={<RequireAuth><TaskDetails /></RequireAuth>} />
                     <Route path="/admin/user-groups" element={<RequireAuth><AdminUserGroupsList /></RequireAuth>} />
                     <Route path="/groups/:id" element={<GroupDetails />} />
                 </Routes>

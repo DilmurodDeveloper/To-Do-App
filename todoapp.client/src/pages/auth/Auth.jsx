@@ -13,6 +13,13 @@ const Auth = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
+    const getUserRole = (user) => {
+        return user?.role
+            || (user?.roles && user.roles[0])
+            || user?.["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"]
+            || user?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/role"];
+    };
+
     useEffect(() => {
         const navState = location.state?.isLogin;
         if (navState !== undefined) {
@@ -27,8 +34,9 @@ const Auth = () => {
 
     useEffect(() => {
         if (user) {
-            if (user.role === "Admin") {
-                navigate("/admin/users");
+            const userRole = getUserRole(user);
+            if (userRole === "Admin") {
+                navigate("/admin/dashboard");
             } else {
                 navigate("/user/dashboard");
             }
@@ -38,8 +46,9 @@ const Auth = () => {
     const handleLogin = async (form) => {
         const res = await login(form);
         if (res.success) {
-            if (res.user?.role === "Admin") {
-                navigate("/admin/users");
+            const userRole = getUserRole(res.user);
+            if (userRole === "Admin") {
+                navigate("/admin/dashboard");
             } else {
                 navigate("/user/dashboard");
             }
