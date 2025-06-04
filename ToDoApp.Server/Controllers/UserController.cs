@@ -19,7 +19,7 @@ namespace ToDoApp.Server.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -78,6 +78,30 @@ namespace ToDoApp.Server.Controllers
             var profile = await _userService.GetUserProfileAsync(userId);
 
             return Ok(profile);
+        }
+
+        [HttpPut("profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto model)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+                return Unauthorized();
+
+            var userId = Guid.Parse(userIdClaim.Value);
+
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var updatedUser = await _userService.UpdateUserAsync(userId, model);
+                return Ok(updatedUser);
+            }
+            catch (Exception)
+            {
+                return BadRequest("An error occurred while updating the profile.");
+            }
         }
     }
 }

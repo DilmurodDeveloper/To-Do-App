@@ -40,6 +40,16 @@ export const updateUser = async (id, userData) => {
     }
 };
 
+export const updateUserProfile = async (userData) => {
+    try {
+        const response = await api.put(`/user/profile`, userData);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error("Failed to update profile:", error);
+        return { success: false, error: error.response?.data?.message || "Could not update profile" };
+    }
+};
+
 export const getUserProfile = async () => {
     try {
         const response = await api.get("/user/profile");

@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 using ToDoApp.Server.DTOs.Groups;
+using ToDoApp.Server.Services;
 using ToDoApp.Server.Services.Interfaces;
 
 namespace ToDoApp.Server.Controllers
@@ -98,5 +99,58 @@ namespace ToDoApp.Server.Controllers
             var groups = await _groupService.GetGroupsUserIsMemberOfAsync(userId);
             return Ok(groups);
         }
+
+        [HttpPost("{id}/join")]
+        public async Task<IActionResult> JoinGroup(Guid id)
+        {
+            var userId = GetUserId();
+            var result = await _groupService.AddUserToGroupAsync(userId, id);
+
+            if (!result)
+                return BadRequest("Could not join the group.");
+
+            return Ok();
+        }
+
+        [HttpPost("{id}/leave")]
+        public async Task<IActionResult> LeaveGroup(Guid id)
+        {
+            var userId = GetUserId();
+            var result = await _groupService.RemoveUserFromGroupAsync(userId, id);
+
+            if (!result)
+                return BadRequest("Could not leave the group.");
+
+            return Ok();
+        }
+
+        [HttpPost("{groupId}/members")]
+        public async Task<IActionResult> AddMember(Guid groupId, [FromBody] AddMemberDto model)
+        {
+            var userId = GetUserId();
+
+            var group = await _groupService.GetGroupByIdAsync(groupId);
+            if (group == null)
+                return NotFound("Group not found.");
+
+            if (group.CreatorId != userId)
+                return Forbid("Only the group creator can add members.");
+
+            var user = await _groupService.GetUserByEmailAsync(model.Email!);
+            if (user == null)
+                return NotFound("User with specified email not found.");
+
+            var result = await _groupService.AddUserToGroupAsync(user.Id, groupId);
+            if (!result)
+                return BadRequest("Failed to add user to the group.");
+
+            return Ok("User added successfully.");
+        }
+
+    }
+
+    public class AddMemberDto
+    {
+        public string? Email { get; set; }
     }
 }

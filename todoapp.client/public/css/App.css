@@ -1,3 +1,45 @@
+html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#root {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.main-content {
+    flex-grow: 1; 
+}
+
+.footer {
+    background-color: #222;
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    width: 100%;
+    z-index: 1000;
+}
+
+.glow-link {
+    color: orange;
+    text-decoration: underline;
+    text-shadow: 0 0 5px #ff4d4d, 0 0 10px #ff4d4d, 0 0 20px #ff1a1a, 0 0 30px #ff1a1a, 0 0 40px #ff0000;
+    transition: text-shadow 0.3s ease-in-out;
+}
+
+    .glow-link:hover {
+        text-shadow: 0 0 10px #ff6666, 0 0 20px #ff3333, 0 0 30px #ff0000, 0 0 40px #cc0000, 0 0 50px #cc0000;
+    }
+
 /* Navbar style start*/
 .navbar-brand {
     font-size: 1.5rem;
@@ -123,7 +165,7 @@ html, body {
 
 /*  Auth page style start */
 .auth-page {
-    max-width: 500px;
+    max-width: 400px;
     margin: 40px auto;
     padding: 20px 20px;
     background: rgba(255, 255, 255, 0.8);
@@ -132,15 +174,7 @@ html, body {
     box-shadow: 0 20px 40px orange;
     color: black;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    user-select: none;
-    transition: max-width 0.6s ease, padding 0.6s ease;
 }
-
-    .auth-page.login-active {
-        max-width: 500px;
-        padding: 20px 20px;
-    }
-
 
 .auth-toggle {
     display: flex;
@@ -154,7 +188,7 @@ html, body {
 
 .toggle-btn {
     flex: 1;
-    padding: 18px 0;
+    padding: 15px 0;
     background: transparent;
     border: none;
     color: gray;
@@ -164,6 +198,7 @@ html, body {
     transition: all 0.4s ease;
     position: relative;
     z-index: 1;
+    margin: 0;
 }
 
     .toggle-btn.active {
@@ -177,7 +212,7 @@ html, body {
             bottom: 0;
             left: 10%;
             width: 90%;
-            height: 5px;
+            height: 3px;
             background: orange;
             border-radius: 1px;
             z-index: -1;
@@ -193,7 +228,7 @@ html, body {
     background: rgba(255, 255, 255, 0.8);
     padding: 10px;
     border-radius: 10px;
-    max-width: 500px;
+    max-width: 400px;
     overflow: hidden;
     transition: max-height 0.6s ease, width 0.6s ease;
     margin: 10px auto;

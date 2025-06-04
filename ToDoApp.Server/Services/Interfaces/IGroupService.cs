@@ -1,4 +1,5 @@
 ﻿using ToDoApp.Server.DTOs.Groups;
+using ToDoApp.Server.DTOs.Users;
 
 namespace ToDoApp.Server.Services.Interfaces
 {
@@ -11,5 +12,8 @@ namespace ToDoApp.Server.Services.Interfaces
         Task<bool> DeleteGroupAsync(Guid groupId);
         Task<IEnumerable<GroupDto>> GetGroupsCreatedByUserAsync(Guid userId);
         Task<IEnumerable<GroupDto>> GetGroupsUserIsMemberOfAsync(Guid userId);
+        Task<bool> AddUserToGroupAsync(Guid userId, Guid groupId);
+        Task<bool> RemoveUserFromGroupAsync(Guid userId, Guid groupId);
+        Task<UserDto?> GetUserByEmailAsync(string email);
     }
 }

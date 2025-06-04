@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getUserTasks } from "../../../api/taskApi";
+import { getTasksByUser } from "../../../api/taskApi";
 
 const TasksList = () => {
     const [tasks, setTasks] = useState([]);
 
     useEffect(() => {
         const fetchTasks = async () => {
-            const result = await getUserTasks();
+            const result = await getTasksByUser();
             if (result.success) setTasks(result.data);
         };
         fetchTasks();

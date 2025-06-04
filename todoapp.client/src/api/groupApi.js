@@ -69,3 +69,33 @@ export const getGroupsUserIsMemberOf = async () => {
         return { success: false, error: error.response?.data?.message || "Could not fetch groups user is member of" };
     }
 };
+
+export const leaveGroup = async (groupId) => {
+    try {
+        await api.post(`/group/${groupId}/leave`);
+        return { success: true };
+    } catch (error) {
+        console.error(`Failed to leave group ${groupId}:`, error);
+        return { success: false, error: error.response?.data?.message || "Could not leave group" };
+    }
+};
+
+export const joinGroup = async (groupId) => {
+    try {
+        const response = await api.post(`/group/${groupId}/join`);
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error(`Failed to join group ${groupId}:`, error);
+        return { success: false, error: error.response?.data?.message || "Could not join group" };
+    }
+};
+
+export const addMember = async (groupId, userId) => {
+    try {
+        const response = await api.post(`/group/${groupId}/members`, { userId });
+        return { success: true, data: response.data };
+    } catch (error) {
+        console.error(`Failed to add member to group ${groupId}:`, error);
+        return { success: false, error: error.response?.data?.message || "Could not add member to group" };
+    }
+};

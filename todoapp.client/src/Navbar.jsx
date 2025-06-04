@@ -1,11 +1,12 @@
 ﻿import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "../public/css/App.css";
 import useAuth from "./hooks/useAuth";
 
-const Navbar = () => {
-    const { user, logout } = useAuth(); 
+const Navbar = ({ hideAuthButtons = false }) => {
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
     const isAuthenticated = !!user;
 
     const handleLogout = () => {
@@ -15,10 +16,12 @@ const Navbar = () => {
 
     const userName = user?.["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"];
 
+    const isAuthPage = location.pathname.startsWith("/auth");
+
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3 px-4 sticky-top">
             <div className="container-fluid">
-                <Link className="navbar-brand fw-bold text-primary" to="/">MyApp</Link>
+                <Link className="navbar-brand fw-bold text-primary" to="/">ToDoApp</Link>
 
                 <button
                     className="navbar-toggler"
@@ -34,7 +37,7 @@ const Navbar = () => {
 
                 <div className="collapse navbar-collapse" id="navbarContent">
                     <div className="d-flex ms-auto align-items-center">
-                        {!isAuthenticated && (
+                        {!isAuthenticated && !hideAuthButtons && !isAuthPage && (
                             <>
                                 <Link
                                     to="/auth"

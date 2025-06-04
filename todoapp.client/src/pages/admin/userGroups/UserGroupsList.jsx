@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { getAllUserGroups } from "../../../api/userGroupApi";
+import { getUsersInGroup } from "../../../api/userGroupApi";
 
 const UserGroupsList = () => {
     const [userGroups, setUserGroups] = useState([]);
 
     useEffect(() => {
         const fetchUserGroups = async () => {
-            const res = await getAllUserGroups();
+            const res = await getUsersInGroup();
             if (res.success) setUserGroups(res.data);
         };
         fetchUserGroups();
