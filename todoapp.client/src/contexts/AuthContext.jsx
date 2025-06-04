@@ -47,7 +47,7 @@ const AuthProvider = ({ children }) => {
             setToken(data.token);
             setUser(decodedUser);
 
-            return { success: true };
+            return { success: true, user: decodedUser };
         } catch (err) {
             return { success: false, error: err.response?.data?.message || err.message || "Login failed" };
         } finally {
@@ -69,10 +69,15 @@ const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            await authApi.logout();
+            await authApi.logout(); 
         } catch { }
+
         setToken(null);
         setUser(null);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+
+        window.location.href = "/auth";
     };
 
     const value = {
