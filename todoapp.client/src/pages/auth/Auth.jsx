@@ -4,7 +4,6 @@ import LoginForm from "../../components/auth/LoginForm";
 import RegisterForm from "../../components/auth/RegisterForm";
 import StepCircleProgress from "../../components/common/StepCircleProgress";
 import useAuth from "../../hooks/useAuth";
-import Navbar from "../../Navbar";
 import "../../../public/css/App.css";
 
 const Auth = () => {
@@ -60,23 +59,20 @@ const Auth = () => {
     };
 
     return (
-        <>
-            <Navbar hideAuthButtons={true} />
-            <div className={`auth-page ${isLogin ? "login-active" : "register-active"} position-relative`} >
-                <div className="auth-toggle">
-                    <button className={`toggle-btn ${isLogin ? "active" : ""}`} onClick={() => setIsLogin(true)}>Login</button>
-                    <button className={`toggle-btn ${!isLogin ? "active" : ""}`} onClick={() => setIsLogin(false)}>Register</button>
-                </div>
-                <div className="auth-form">
-                    {!isLogin && <StepCircleProgress step={1} />}
-                    {isLogin ? (
-                        <LoginForm onSubmit={handleLogin} onRegisterClick={() => setIsLogin(false)} />
-                    ) : (
-                        <RegisterForm onSubmit={handleRegister} onLoginClick={() => setIsLogin(true)} />
-                    )}
-                </div>
+        <div className={`auth-page ${isLogin ? "login-active" : "register-active"} position-relative`} >
+            <div className="auth-toggle">
+                <button className={`toggle-btn ${isLogin ? "active" : ""}`} onClick={() => setIsLogin(true)}>Login</button>
+                <button className={`toggle-btn ${!isLogin ? "active" : ""}`} onClick={() => setIsLogin(false)}>Register</button>
             </div>
-        </>
+            <div className="auth-form">
+                {!isLogin && <StepCircleProgress step={1} />}
+                {isLogin ? (
+                    <LoginForm onSubmit={handleLogin} onRegisterClick={() => setIsLogin(false)} />
+                ) : (
+                    <RegisterForm onSubmit={handleRegister} onLoginClick={() => setIsLogin(true)} />
+                )}
+            </div>
+        </div>
     );
 };
 
